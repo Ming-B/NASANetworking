@@ -31,12 +31,8 @@ class NasaImageModel {
         
         
         let session = URLSession(configuration: .default)
-        
-        let tempKey = "dOR3ZJ2YwfP4FgLBbajf6R7eazZY3Wz7wvUi7S6A"
-        
-        
-        
-        if let url = URL(string: "https://api.nasa.gov/planetary/apod?api_key=\(tempKey)") {
+                
+        if let url = URL(string: "https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY") {
             let request = URLRequest(url: url)
             
             do {
@@ -77,16 +73,24 @@ struct ComicView: View {
                 .font(.title)
             
             Text(NasaModel.picture?.title ?? "")
-            AsyncImage(url:NasaModel.imgURL) { image in
-                image
-                    .resizable()
-                    .aspectRatio(contentMode:.fit)
-            } placeholder: {
-                if (fetchingImage) {
-                    ProgressView()
+            ScrollView {
+                AsyncImage(url:NasaModel.imgURL) { image in
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode:.fit)
+                } placeholder: {
+                    if (fetchingImage) {
+                        ProgressView()
+                    }
                 }
+                
+                Text(NasaModel.picture?.explanation ?? "")
+                
+                Spacer()
+                
+                
             }
-            Spacer()
+            
             Button{
                 loadImage()
                 
@@ -101,6 +105,7 @@ struct ComicView: View {
                     .padding(.vertical)
             }
             .disabled(fetchingImage)
+            
             
         }
         .padding()
