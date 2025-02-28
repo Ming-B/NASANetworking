@@ -29,9 +29,14 @@ class NasaImageModel {
     
     private func getPicture() async -> NasaImage? {
         
+        
         let session = URLSession(configuration: .default)
         
-        if let url = URL(string: "https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY") {
+        let tempKey = "dOR3ZJ2YwfP4FgLBbajf6R7eazZY3Wz7wvUi7S6A"
+        
+        
+        
+        if let url = URL(string: "https://api.nasa.gov/planetary/apod?api_key=\(tempKey)") {
             let request = URLRequest(url: url)
             
             do {
@@ -47,12 +52,7 @@ class NasaImageModel {
                 print(error)
             }
         }
-        
-
-        
         return nil
-        
-        
     }
     
 }
@@ -63,7 +63,7 @@ struct ComicView: View {
     @State var fetchingImage = false
     @State var NasaModel = NasaImageModel()
     
-    func loadComic() {
+    func loadImage() {
         fetchingImage = true
         Task {
             await NasaModel.refresh()
@@ -73,28 +73,39 @@ struct ComicView: View {
     
     var body: some View {
         VStack {
-            Text("Picture of the Day")
+            Text("Astronomy Picture of the Day")
                 .font(.title)
+            
             Text(NasaModel.picture?.title ?? "")
             AsyncImage(url:NasaModel.imgURL) { image in
                 image
                     .resizable()
                     .aspectRatio(contentMode:.fit)
             } placeholder: {
-                if fetchingImage {
+                if (fetchingImage) {
                     ProgressView()
                 }
             }
             Spacer()
-            Button("Get APOD") {
-                loadComic()
+            Button{
+                loadImage()
+                
+            } label: {
+                Text("Get APOD")
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(.white)
+                    .frame(width:360, height:44)
+                    .background(Color(.systemBlue))
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .padding(.vertical)
             }
             .disabled(fetchingImage)
             
         }
         .padding()
         .onAppear() {
-            loadComic()
+            loadImage()
         }
     }
 }
