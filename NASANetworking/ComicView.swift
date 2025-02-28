@@ -31,9 +31,7 @@ class NasaImageModel {
         
         let session = URLSession(configuration: .default)
         
-        let apiKey = "dOR3ZJ2YwfP4FgLBbajf6R7eazZY3Wz7wvUi7S6A"
-        
-        if let url = URL(string: "https://api.nasa.gov/planetary/apod?api_key=\(apiKey)") {
+        if let url = URL(string: "https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY") {
             let request = URLRequest(url: url)
             
             do {
@@ -86,7 +84,7 @@ struct ComicView: View {
                 }
             }
             Spacer()
-            Button("Get Comic") {
+            Button("Get APOD") {
                 loadComic()
             }
             .disabled(fetchingComic)
