@@ -48,6 +48,8 @@ class NasaImageModel {
             }
         }
         
+
+        
         return nil
         
         
@@ -58,14 +60,14 @@ class NasaImageModel {
 
 
 struct ComicView: View {
-    @State var fetchingComic = false
+    @State var fetchingImage = false
     @State var NasaModel = NasaImageModel()
     
     func loadComic() {
-        fetchingComic = true
+        fetchingImage = true
         Task {
             await NasaModel.refresh()
-            fetchingComic = false
+            fetchingImage = false
         }
     }
     
@@ -79,7 +81,7 @@ struct ComicView: View {
                     .resizable()
                     .aspectRatio(contentMode:.fit)
             } placeholder: {
-                if fetchingComic {
+                if fetchingImage {
                     ProgressView()
                 }
             }
@@ -87,7 +89,7 @@ struct ComicView: View {
             Button("Get APOD") {
                 loadComic()
             }
-            .disabled(fetchingComic)
+            .disabled(fetchingImage)
             
         }
         .padding()
