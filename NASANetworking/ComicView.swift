@@ -15,7 +15,6 @@ struct NasaImage: Codable {
     var title: String
     var url: String
     var hdurl: String
-    var media_type: String
     
 }
 
@@ -23,28 +22,24 @@ struct NasaImage: Codable {
 //image model for a nasa image of the day
 //@params: array of images(to contain the past few days)
 //array of thumbnailURLS to display on the main scroll list
-class NasaImageModel {
-     var pictures: [NasaImage] = []
-     var thumbnailURLs: [URL] = []
-     var refreshDate: Date?
+class NasaImageModel: ObservableObject {
+     @Published var pictures: [NasaImage] = []
+     @Published var thumbnailURLs: [URL] = []
     
     //async function that awaits get picturs
     //refrehes the screen to fetch the new pictures of the day for the past 5 days
     func refresh() async {
-        self.pictures.removeAll()
-        self.thumbnailURLs.removeAll()
         
         let pastDates = getPastDates(count: 5)
         
         for date in pastDates {
-            if let picture = await self.getPicture(for: date) {
-                pictures.append(picture)
-                if let thumbnail = URL(string: picture.url) {
-                    thumbnailURLs.append(thumbnail)
+            if let picture = await getPicture(for: date) {
+                self.pictures.append(picture)
+                if let url = URL(string: picture.url) {
+                    self.thumbnailURLs.append(url)
                 }
             }
         }
-        
         
     }
     
@@ -62,17 +57,9 @@ class NasaImageModel {
                 let(data, _) = try await session.data(for:request)
                 let decoder = JSONDecoder()
                 let image = try decoder.decode(NasaImage.self, from: data)
-                
-                if image.media_type == "image" {
-                    return image
-                }
-                else {
-                    print("Error fetching picture as it is not an image for date: \(date)")
-                    return nil
-                    
-                }
+                return image
+
             }
-            
             catch {
                 print(error)
             }
@@ -82,12 +69,11 @@ class NasaImageModel {
     
     
     private func getPastDates(count: Int) -> [String] {
+        let calendar = Calendar.current
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd"
-        let calendar = Calendar.current
-        var pastDates:[String] = []
         
-        
+        var pastDates: [String] = []
         for i in 0...count {
             if let date = calendar.date(byAdding: .day, value: -i, to: Date()) {
                 pastDates.append(dateFormatter.string(from: date))
@@ -96,9 +82,6 @@ class NasaImageModel {
         }
         
         return pastDates
-        
-        
-        
     }
     
 }
@@ -140,7 +123,7 @@ struct DetailView: View {
 //list of past 5 days worth of APODS, structured in a way such that you can navigate to a more detailed view
 //click on thumbnail to go into detailed view
 struct ComicView: View {
-    @State var nasaModel = NasaImageModel()
+    @StateObject var nasaModel = NasaImageModel()
     @State var fetchingImage = false
     
     func loadImage() {
@@ -156,7 +139,6 @@ struct ComicView: View {
             VStack {
                 Text("NASA APOD")
                     .font(.headline)
-                    .fontWeight(.bold)
                     .padding()
                 
                 List {
@@ -170,7 +152,7 @@ struct ComicView: View {
                                         .resizable()
                                         .aspectRatio(contentMode: .fit)
                                         .frame(width: 100, height: 100)
-                                        .cornerRadius(8)
+                                        .cornerRadius(10)
                                 } placeholder: {
                                     ProgressView()
                                 }
@@ -197,12 +179,17 @@ struct ComicView: View {
                 }
                 .disabled(fetchingImage)
             }
-            .padding()
             .onAppear() {
                 loadImage()
             }
+            .padding()
         }
     }
+    
+}
+
+#Preview {
+    ComicView()
 }
 
 
