@@ -23,8 +23,8 @@ struct NasaImage: Codable {
 //@params: array of images(to contain the past few days)
 //array of thumbnailURLS to display on the main scroll list
 class NasaImageModel: ObservableObject {
-     @Published var pictures: [NasaImage] = []
-     @Published var thumbnailURLs: [URL] = []
+    @Published var pictures: [NasaImage] = []
+    @Published var thumbnailURLs: [URL] = []
     
     //async function that awaits get picturs
     //refrehes the screen to fetch the new pictures of the day for the past 5 days
@@ -49,7 +49,7 @@ class NasaImageModel: ObservableObject {
         let session = URLSession(configuration: .default)
         
         let key = "dOR3ZJ2YwfP4FgLBbajf6R7eazZY3Wz7wvUi7S6A"
-                    
+        
         if let url = URL(string: "https://api.nasa.gov/planetary/apod?api_key=\(key)&date=\(date)") {
             let request = URLRequest(url: url)
             
@@ -58,7 +58,7 @@ class NasaImageModel: ObservableObject {
                 let decoder = JSONDecoder()
                 let image = try decoder.decode(NasaImage.self, from: data)
                 return image
-
+                
             }
             catch {
                 print(error)
@@ -115,7 +115,7 @@ struct DetailView: View {
             }
         }
     }
-
+    
     
 }
 
@@ -191,5 +191,4 @@ struct ComicView: View {
 #Preview {
     ComicView()
 }
-
 
