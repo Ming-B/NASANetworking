@@ -180,14 +180,6 @@ struct ComicView: View {
                     
                 }
                 .listStyle(.plain)
-                
-                
-                Button {
-                    loadImage()
-                } label: {
-                    Text("Get APOD")
-                }
-                .disabled(fetchingImage)
             }
         }
         .onAppear() {
