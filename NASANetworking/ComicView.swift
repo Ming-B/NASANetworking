@@ -14,7 +14,7 @@ struct NasaImage: Codable {
     var title: String
     var url: String
     var hdurl: String?
-    //var media_type: String
+    var media_type: String
     
 }
 
@@ -23,9 +23,7 @@ struct NasaImage: Codable {
 //@params: array of images(to contain the past few days)
 @Observable
 class NasaImageModel {
-    
-    //ask if i even need the nasamodel, or can i get away with just using the struct and instantiating it
-    
+        
     var pictures: [NasaImage] = []
     //async function that awaits get picturs
     //refrehes the screen to fetch the new pictures of the day for the past 5 days
@@ -85,21 +83,6 @@ class NasaImageModel {
     }
     
     
-    //function to calculate the day that was 5 days before current
-    private func getStartDate(date: Date) -> String {
-        let calendar = Calendar.current
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"
-        
-        if let newDate = calendar.date(byAdding: .day, value: -5, to: date) {
-            return dateFormatter.string(from: newDate)
-        }
-        
-        return dateFormatter.string(from: date)
-        
-        
-    }
-    
     
 }
 
@@ -116,13 +99,15 @@ struct DetailView: View {
                     .font(.title)
                     .padding()
                 
-                AsyncImage(url: URL(string: apod.url)) { image in
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                    
-                } placeholder: {
-                    ProgressView()
+                if apod.media_type == "image", let thumbnailURL = apod.hdurl, let url = URL(string: thumbnailURL) {
+                    AsyncImage(url: URL(string: apod.url)) { image in
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                        
+                    } placeholder: {
+                        ProgressView()
+                    }
                 }
                 
                 
@@ -158,25 +143,39 @@ struct ComicView: View {
                 Text("NASA APOD")
                     .font(.headline)
                     .padding()
-                
                 List(nasaModel.pictures, id: \.date) { picture in
                     NavigationLink{
                         DetailView(apod: picture)
                     } label: {
-                        HStack {
-                            AsyncImage(url: URL(string: picture.url)) { image in
-                                image
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fit)
-                                    .frame(width: 100, height: 100)
-                                    .cornerRadius(10)
-                            } placeholder: {
-                                ProgressView()
+                        VStack {
+                            HStack {
+                                if picture.media_type == "image", let thumbnailURL = picture.hdurl, let url = URL(string: thumbnailURL) {
+                                    
+                                    
+                                    AsyncImage(url: URL(string: picture.url)) { image in
+                                        image
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fit)
+                                            .frame(width: 100, height: 100)
+                                            .cornerRadius(10)
+                                    } placeholder: {
+                                        ProgressView()
+                                    }
+                                }
+                                
+                                VStack {
+                                    Text(picture.title)
+                                        .font(.headline)
+                                    
+                                    Text(picture.explanation)
+                                        .font(.caption)
+                                        .lineLimit(3)
+                                }
+                                
                             }
                             
-                            Text(picture.title)
-                                .font(.headline)
                         }
+                        
                     }
                     
                 }
